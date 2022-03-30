@@ -17,8 +17,10 @@ db.once('open', function () {
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
+
 
 app.get('/test', (request, response) => {
 
@@ -27,6 +29,8 @@ app.get('/test', (request, response) => {
 })
 
 app.get('/books', getBooks);
+app.post('/books', postBook);
+app.delete('/books/:id', deleteBook);
 
 async function getBooks(req, res, next) {
   try {
@@ -41,5 +45,33 @@ async function getBooks(req, res, next) {
     next(error)
   }
 }
+
+async function postBook(req, res, next) {
+try{
+  let createdBook = await Book.create(req.body);
+  res.status(200).send(createdBook);
+} catch(error){
+  next(error);
+}
+}
+
+async function deleteBook(req, res, next){
+  let id = req.params.id;
+  try {
+    await Book.findByIdAndDelete(id);
+    res.send('book deleted');
+  } catch(error){
+    next(error);
+  }
+}
+
+app.get('*', (request, response) => {
+  response.status(404).send('Not availabe');
+})
+
+// error
+app.use((error, req, res, next) => {
+  res.status(500).send(error.message);
+});
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
