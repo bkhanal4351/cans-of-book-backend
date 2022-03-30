@@ -31,6 +31,7 @@ app.get('/test', (request, response) => {
 app.get('/books', getBooks);
 app.post('/books', postBook);
 app.delete('/books/:id', deleteBook);
+app.put('/books/:id', putBook);
 
 async function getBooks(req, res, next) {
   try {
@@ -64,6 +65,18 @@ async function deleteBook(req, res, next){
     next(error);
   }
 }
+
+async function putBook(req, res, next) {
+  
+  try {
+    let id = req.params.id;
+    let updatedBook = await Book.findByIdAndUpdate(id, req.body, { new: true, overwrite: true});
+    res.status(200).send(updatedBook);
+  } catch(error) {
+    next(error);
+  }
+}
+
 
 app.get('*', (request, response) => {
   response.status(404).send('Not availabe');
